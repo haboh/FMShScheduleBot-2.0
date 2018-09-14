@@ -42,10 +42,13 @@ def get_list_of_names_of_all_images():
 
 
 def get_hash_of_image(path):
-    image = open(path, 'rb')
-    hash_of_image = md5(image.read()).hexdigest()
-    image.close()
-    return hash_of_image
+    try:
+        image = open(path, 'rb')
+        hash_of_image = md5(image.read()).hexdigest()
+        image.close()
+        return hash_of_image
+    except:
+        print("Error In Get Hash")
 
 
 def get_names_of_not_posted_images(list_of_hashes):
@@ -63,17 +66,18 @@ def main():
     bot = TeleBot(config.BotToken)
     list_of_hashes = ListOfHashes(config.FileWithListOfHashesOfImages)
     while True:
-        try:
-            list_of_images_for_post = get_names_of_not_posted_images(list_of_hashes)
-            for image_name in list_of_images_for_post:
-                bot.send_chat_action(config.ChanelId, 'upload_photo')
+        list_of_images_for_post = get_names_of_not_posted_images(list_of_hashes)
+        for image_name in list_of_images_for_post:
+            try:
                 path_to_image = config.DirectoryWithImages + '\\' + image_name
                 image_for_post = open(path_to_image, 'rb')
+                bot.send_chat_action(config.ChanelId, 'upload_photo')
                 bot.send_photo(config.ChanelId, image_for_post)
                 image_for_post.close()
-        finally:
-            pass
-        sleep(60)
+            except:
+                print('Error In Main')
+
+        # sleep(60)
 
 
 if __name__ == '__main__':
